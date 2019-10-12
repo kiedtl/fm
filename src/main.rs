@@ -8,6 +8,7 @@ const VERS: &str = "0.0.3";
 // token types
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
+const _EXP: &str = "subexpression";
 
 // operators
 const _OPERATORS: &'static [&'static str] = &["+",      // addition 
@@ -57,7 +58,7 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
                      .cloned()
                      .collect()
                      );
-        } else if _OPERATORS.contains(&&*token) {
+        } else if _OPERATORS.contains(&&*token) { // check if the token is contained in the operators array
             ast.push([("type".to_owned(), 
                        _OPT.to_owned()), 
                      ("token".to_owned(), 
@@ -66,6 +67,15 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
                      .cloned()
                      .collect()
                      );
+        } else if token == "(" || token == ")" || token == "[" || token == "]" { // check if token equals (, ), [, or ]
+            ast.push([("type".to_owned(),
+                       _EXP.to_owned()),
+                      ("token".to_string(),
+                      token)]
+                      .iter()
+                      .cloned()
+                      .collect()
+                      );
         } else {
             println!("ERROR: token {} not recognized as OPT or INT! aborting.", token);
             process::exit(1);
