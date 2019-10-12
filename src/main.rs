@@ -1,7 +1,6 @@
 use std;
 use std::env;
 use std::process;
-use std::collections;
 use std::collections::HashMap;
 
 // token types
@@ -9,7 +8,38 @@ const _INT: &str = "integer";
 const _OPT: &str = "operator";
 
 // operators
-const _OPERATORS: &'static [&'static str] = &["+", "-"];
+const _OPERATORS: &'static [&'static str] = &["+",      // addition 
+                                              "-",      // subtraction
+                                              "*",      // multiplication
+                                              "/",      // division
+                                              "%",      // modulus
+                                              "^",      // power
+                                              "!",      // factorial
+                                              "nrt",    // root
+                                              "log"     // logarithm
+                                             ];
+
+
+fn lex(tokens: Vec<String>) -> Vec<String> {
+    // iterate through Vector
+    // and check if there are 
+    // spaces in any of the tokens.
+    // if so, save that token, split it,
+    // and replace the original item with it.
+    let mut newtokens: Vec<String> = Vec::new();
+    for token in &tokens {
+        if token.contains(" ") {
+            let split_token = token.split(" ");
+            let newsplit_tokens: Vec<&str> = split_token.collect::<Vec<&str>>().to_owned();
+            for newsplit_token in newsplit_tokens {
+                newtokens.push(newsplit_token.to_owned());
+            }
+        } else {
+            newtokens.push(token.to_owned());
+        }
+    }
+    return newtokens;
+}
 
 fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
     // abstract syntax table
@@ -39,7 +69,7 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
             process::exit(1);
         }
     }
-    println!("DEBUG: AST: {:?}", ast);
+    debug(format!("DEBUG: AST: {:?}", ast));
     return ast;
 }
 
@@ -54,12 +84,19 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 if val == 0.0 {
                     val = map["token"].parse::<f64>().unwrap();
                 } else {
-                    println!("WARN!: token {} has no operator!", map["token"]); 
+                    warn(format!("WARN!: token {} has no operator!", map["token"]));
                 }
             } else {
                 // if so, calculate and add to val, then reset other values.
                 if lastopt == "+" { val = val + map["token"].parse::<f64>().unwrap(); }
-                if lastopt == "-" { val = val - map["token"].parse::<f64>().unwrap(); }
+                else if lastopt == "-" { val = val - map["token"].parse::<f64>().unwrap(); }
+                else if lastopt == "*" { val = val * map["token"].parse::<f64>().unwrap(); }
+                else if lastopt == "/" { val = val / map["token"].parse::<f64>().unwrap(); }
+                else if lastopt == "%" { val = val % map["token"].parse::<f64>().unwrap(); }
+                else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
+                else { println!("WARN: operator {} not implemented yet.", map["token"]); }
+
+                // reset values
                 lastopt = "".to_owned();
                 // lastint = 0;
             }
@@ -67,9 +104,21 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
         if map["type"] == _OPT.to_string() {
             lastopt = map["token"].to_string();
         }
-        println!("DEBUG: val:{} opt:{}", val, lastopt);
+        debug(format!("DEBUG: val:{} opt:{}", val, lastopt));
     }
     return format!("{}", val)
+}
+
+fn debug(text: String) {
+    if !env::var("FD_DEBUG").is_err() {
+        println!("{}", text);
+    }
+}
+
+fn warn(text: String) {
+    if !env::var("FD_WARN").is_err() {
+        println!("{}", text);
+    }
 }
 
 fn main() {
@@ -78,6 +127,6 @@ fn main() {
     for i in 1..args.len() {
         nargs.push((&*args[i]).to_owned());
     }
-    let answ: String = process(parse(nargs));
+    let answ: String = process(parse(lex(nargs)));
     println!("{}", answ);
 }
