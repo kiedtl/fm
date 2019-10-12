@@ -83,6 +83,16 @@ fn factorial(x: f64) -> f64 {
     return val;
 }
 
+fn root(num: f64, mut base: f64) -> f64 {
+    // convert base to decimal
+    // e.g. if base is 5, then convert 5 to fraction, then to decimal
+    // e.g. 5 = 1/5 = 0.2
+    base = 1.0 / base;
+
+    // push num to the power of base
+    return num.powf(base);
+}
+
 fn process(ast: Vec<HashMap<String, String>>) -> String {
     let mut val:     f64    = 0.0;
     let mut lastopt: String = "".to_owned();
@@ -106,6 +116,7 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
                 else if lastopt == "!" { val = val + factorial(map["token"].parse::<f64>().unwrap()); }
                 else if lastopt == "log" { val = val.log(map["token"].parse::<f64>().unwrap()); }
+                else if lastopt == "nrt" { val = root(val, map["token"].parse::<f64>().unwrap()); }
                 else { println!("WARN: operator {} not implemented yet.", map["token"]); }
 
                 // reset values
