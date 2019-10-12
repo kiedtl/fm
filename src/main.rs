@@ -105,6 +105,7 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 else if lastopt == "%" { val = val % map["token"].parse::<f64>().unwrap(); }
                 else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
                 else if lastopt == "!" { val = val + factorial(map["token"].parse::<f64>().unwrap()); }
+                else if lastopt == "log" { val = val.log(map["token"].parse::<f64>().unwrap()); }
                 else { println!("WARN: operator {} not implemented yet.", map["token"]); }
 
                 // reset values
