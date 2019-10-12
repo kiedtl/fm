@@ -15,7 +15,7 @@ See `fm --help` for more information regarding usage.
 A fabulous monster!
 
 ## TODO
-- implement `log` and `nrt` operators.
+- implement `log` and `nrt` operators. **[DONE]**
 - implement nested expressions.
 - write `CONTRIBUTING.md`
 
