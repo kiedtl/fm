@@ -77,8 +77,8 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
 
 fn factorial(x: f64) -> f64 {
     let mut val: f64 = 0.0;
-    for y in 1..(x as u8) {
-        val = val * y as f64;
+    for y in 0..(x as u8) {
+        val *= y as f64;
     }
     return val;
 }
@@ -114,7 +114,7 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 else if lastopt == "/" { val = val / map["token"].parse::<f64>().unwrap(); }
                 else if lastopt == "%" { val = val % map["token"].parse::<f64>().unwrap(); }
                 else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
-                else if lastopt == "!" { val = val + factorial(map["token"].parse::<f64>().unwrap()); }
+                else if lastopt == "!" { val = factorial(val); }
                 else if lastopt == "log" { val = val.log(map["token"].parse::<f64>().unwrap()); }
                 else if lastopt == "nrt" { val = root(val, map["token"].parse::<f64>().unwrap()); }
                 else { println!("WARN: operator {} not implemented yet.", map["token"]); }
