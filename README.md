@@ -9,13 +9,18 @@ $ fm 5 + 5
 $ fm 5 + (3 * (5 ^ 2))
 80
 ```
+See `fm --help` for more information regarding usage.
 
 ## What does `fm` stand for?
 A fabulous monster!
 
 ## TODO
-- implement `*`, `/`, `^`, `%`, `#` operators.
+- implement `log` and `nrt` operators.
 - implement nested expressions.
+- write `CONTRIBUTING.md`
 
 ## License
 - MIT (c) Kied Llaentenn
+
+## Contributing
+Contributions are very much welcome.
