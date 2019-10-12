@@ -3,6 +3,8 @@ use std::env;
 use std::process;
 use std::collections::HashMap;
 
+const VERS: &str = "0.0.3";
+
 // token types
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
@@ -121,12 +123,83 @@ fn warn(text: String) {
     }
 }
 
+fn help() {
+    println!("
+fm {}
+MIT (c) Kied Llaentenn
+
+fm is a terminal-based mathematical expression evaluator.
+
+Usage:
+    [ARGS=0] fm [EXPRESSION]
+
+Arguments:
+    FD_DEBUG    Enable debug statements. (Note: FD_DEBUG only has to be set, the value does not matter.)
+    FD_WARN     Enable warning statements. (Note: FD_WARN just has to be set, the value doesn't  matter.)
+
+Operators:
+    +           Addition.
+    -           Subtraction.
+    *           Multiplication.
+    /           Division.
+    %           Modulus.
+    ^           Raise to power.
+    !           Factorial
+    nrt         Root (e.g., \"3 nrt 27\" means 'calculate the cube root of 27')
+    log         Logarithm
+
+Examples:
+    $ FD_DEBUG=1 fm \"21 + 21 + 21\"
+        (Show debug statements while calculating 21*3)
+    $ fm 234 ^ 89
+        (Calculate 234 to the power of 89)
+
+Other:
+    --help|-help|-h|help|?
+        Display this help message.
+
+    --version|-v|version
+        Display version and exit.
+", VERS);
+}
+
+fn version() {
+    println!("fm {}", VERS);
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
+    
+    // Display help if there aren't any args.
+    if args.len() < 2 {
+        help();
+        std::process::exit(1);
+    }
+
     let mut nargs: Vec<String> = Vec::new();
     for i in 1..args.len() {
         nargs.push((&*args[i]).to_owned());
     }
+    
+    // print help and exit if first arg is ?
+    if nargs[1] == "--help" ||
+        nargs[1] == "-h"    ||
+        nargs[1] == "-help" ||
+        nargs[1] == "help"  ||
+        nargs[1] == "?" {
+            help();
+            std::process::exit(1);
+    }
+
+    // print version if first arg is -v
+    if nargs[1] == "-v" ||
+        nargs[1] == "--version" ||
+        nargs[1] == "version" {
+            version();
+            std::process::exit(1);
+    }
+
+
     let answ: String = process(parse(lex(nargs)));
     println!("{}", answ);
 }
