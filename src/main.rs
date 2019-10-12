@@ -191,19 +191,19 @@ fn main() {
     }
 
     // print help and exit if first arg is ?
-    if nargs[1] == "--help" ||
-        nargs[1] == "-h"    ||
-        nargs[1] == "-help" ||
-        nargs[1] == "help"  ||
-        nargs[1] == "?" {
+    if nargs[0] == "--help" ||
+        nargs[0] == "-h"    ||
+        nargs[0] == "-help" ||
+        nargs[0] == "help"  ||
+        nargs[0] == "?" {
             help();
             std::process::exit(1);
     }
 
     // print version if first arg is -v
-    if nargs[1] == "-v" ||
-        nargs[1] == "--version" ||
-        nargs[1] == "version" {
+    if nargs[0] == "-v" ||
+        nargs[0] == "--version" ||
+        nargs[0] == "version" {
             version();
             std::process::exit(1);
     }
