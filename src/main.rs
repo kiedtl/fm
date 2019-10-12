@@ -75,6 +75,14 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
     return ast;
 }
 
+fn factorial(x: f64) -> f64 {
+    let mut val: f64 = 0.0;
+    for y in 1..(x as u8) {
+        val = val * y as f64;
+    }
+    return val;
+}
+
 fn process(ast: Vec<HashMap<String, String>>) -> String {
     let mut val:     f64    = 0.0;
     let mut lastopt: String = "".to_owned();
@@ -96,6 +104,7 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 else if lastopt == "/" { val = val / map["token"].parse::<f64>().unwrap(); }
                 else if lastopt == "%" { val = val % map["token"].parse::<f64>().unwrap(); }
                 else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
+                else if lastopt == "!" { val = val + factorial(map["token"].parse::<f64>().unwrap()); }
                 else { println!("WARN: operator {} not implemented yet.", map["token"]); }
 
                 // reset values
@@ -170,17 +179,17 @@ fn version() {
 fn main() {
     let args: Vec<String> = env::args().collect();
     
-    // Display help if there aren't any args.
-    if args.len() < 2 {
-        help();
-        std::process::exit(1);
-    }
-
     let mut nargs: Vec<String> = Vec::new();
     for i in 1..args.len() {
         nargs.push((&*args[i]).to_owned());
     }
-    
+   
+    // Display help if there aren't any args.
+    if nargs.len() < 1 { 
+        help();
+        std::process::exit(1);
+    }
+
     // print help and exit if first arg is ?
     if nargs[1] == "--help" ||
         nargs[1] == "-h"    ||
