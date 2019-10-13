@@ -31,7 +31,8 @@ fn lex(tokens: Vec<String>) -> Vec<String> {
             newtokens.push(token.to_owned());
         }
     }
-    return newtokens;
+
+    newtokens
 }
 
 fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
@@ -67,7 +68,7 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
         }
     }
     debug(format!("DEBUG: AST: {:?}", ast));
-    return ast;
+    ast
 }
 
 fn factorial(x: f64) -> f64 {
@@ -75,7 +76,8 @@ fn factorial(x: f64) -> f64 {
     for y in 0..(x as u8) {
         val *= y as f64;
     }
-    return val;
+
+    val
 }
 
 fn root(num: f64, mut base: f64) -> f64 {
@@ -85,7 +87,7 @@ fn root(num: f64, mut base: f64) -> f64 {
     base = 1.0 / base;
 
     // push num to the power of base
-    return num.powf(base);
+    num.powf(base)
 }
 
 fn process(ast: Vec<HashMap<String, String>>) -> String {
@@ -126,7 +128,8 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
         }
         debug(format!("DEBUG: val:{} opt:{:?}", val, lastopt));
     }
-    return format!("{}", val)
+
+    val.to_string()
 }
 
 fn debug(text: String) {
