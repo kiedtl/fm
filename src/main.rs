@@ -40,7 +40,7 @@ Other:
     --help|-help|-h|help|?
         Display this help message.
 
-    --version|-v|version
+    --version|-version|-v|version
         Display version and exit.
 ", VERS);
 }
