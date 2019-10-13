@@ -1,3 +1,7 @@
+mod fm;
+
+use fm::ops::Operators;
+
 use std;
 use std::env;
 use std::process;
@@ -8,47 +12,6 @@ const VERS: &str = "0.0.3";
 // token types
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
-
-#[derive(Debug, PartialEq)]
-enum Operators {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-    Modulo,
-    Exponent,
-    Factorial,
-    NRoot,
-    Logarithm,
-    Unimplemented,
-}
-
-impl Operators {
-    fn from_token<S>(token: S) -> Self 
-    where S: AsRef<str> 
-    {
-        match token.as_ref() {
-            "+" => Self::Add,
-            "-" => Self::Subtract,
-            "*" => Self::Multiply,
-            "/" => Self::Divide,
-            "%" => Self::Modulo,
-            "^" => Self::Exponent,
-            "!" => Self::Factorial,
-            "nrt" => Self::NRoot,
-            "log" => Self::Logarithm,
-            _ => Self::Unimplemented,
-        }
-    }
-
-    
-}
-
-impl<S> From<S> for Operators where S: AsRef<str> {
-    fn from(token: S) -> Self {
-        Self::from_token(token)
-    }
-}
 
 fn lex(tokens: Vec<String>) -> Vec<String> {
     // iterate through Vector
