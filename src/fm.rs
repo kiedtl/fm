@@ -93,7 +93,7 @@ pub fn process(ast: &[HashMap<String, String>]) -> String {
                     Operators::Factorial => val = factorial(val),
                     Operators::Logarithm => val = val.log(map["token"].parse::<f64>().unwrap()),
                     Operators::NRoot => val = root(val, map["token"].parse::<f64>().unwrap()),
-                    Operators::Unimplemented => eprintln!("WARN: operator {} not implemented yet.", map["token"]),
+                    _ => eprintln!("WARN: operator {} not implemented yet.", map["token"]),
                 }
 
                 // reset values
