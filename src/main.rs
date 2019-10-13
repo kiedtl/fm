@@ -9,18 +9,46 @@ const VERS: &str = "0.0.3";
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
 
-// operators
-const _OPERATORS: &'static [&'static str] = &["+",      // addition 
-                                              "-",      // subtraction
-                                              "*",      // multiplication
-                                              "/",      // division
-                                              "%",      // modulus
-                                              "^",      // power
-                                              "!",      // factorial
-                                              "nrt",    // root
-                                              "log"     // logarithm
-                                             ];
+#[derive(Debug, PartialEq)]
+enum Operators {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo,
+    Exponent,
+    Factorial,
+    NRoot,
+    Logarithm,
+    Unimplemented,
+}
 
+impl Operators {
+    fn from_token<S>(token: S) -> Self 
+    where S: AsRef<str> 
+    {
+        match token.as_ref() {
+            "+" => Self::Add,
+            "-" => Self::Subtract,
+            "*" => Self::Multiply,
+            "/" => Self::Divide,
+            "%" => Self::Modulo,
+            "^" => Self::Exponent,
+            "!" => Self::Factorial,
+            "nrt" => Self::NRoot,
+            "log" => Self::Logarithm,
+            _ => Self::Unimplemented,
+        }
+    }
+
+    
+}
+
+impl<S> From<S> for Operators where S: AsRef<str> {
+    fn from(token: S) -> Self {
+        Self::from_token(token)
+    }
+}
 
 fn lex(tokens: Vec<String>) -> Vec<String> {
     // iterate through Vector
@@ -47,28 +75,32 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
     // abstract syntax table
     let mut ast: Vec<HashMap<String, String>> = Vec::new();
     for token in tokens {
+        let token: &str = token.as_ref();
         // check if token is numeric
         if token.parse::<f64>().is_ok() {
             ast.push([("type".to_owned(), 
                        _INT.to_owned()), 
                      ("token".to_string(), 
-                      token)]
-                     .iter()
-                     .cloned()
-                     .collect()
-                     );
-        } else if _OPERATORS.contains(&&*token) {
-            ast.push([("type".to_owned(), 
-                       _OPT.to_owned()), 
-                     ("token".to_owned(), 
-                      token)]
+                      token.to_owned())]
                      .iter()
                      .cloned()
                      .collect()
                      );
         } else {
-            println!("ERROR: token {} not recognized as OPT or INT! aborting.", token);
-            process::exit(1);
+            let operator: Operators = token.into();
+            if operator == Operators::Unimplemented {
+                println!("ERROR: token {} not recognized as OPT or INT! aborting.", &token);
+                process::exit(1);
+            }
+
+            ast.push([("type".to_owned(), 
+                       _OPT.to_owned()), 
+                     ("token".to_owned(), 
+                      token.to_owned())]
+                     .iter()
+                     .cloned()
+                     .collect()
+                     );
         }
     }
     debug(format!("DEBUG: AST: {:?}", ast));
@@ -95,12 +127,12 @@ fn root(num: f64, mut base: f64) -> f64 {
 
 fn process(ast: Vec<HashMap<String, String>>) -> String {
     let mut val:     f64    = 0.0;
-    let mut lastopt: String = "".to_owned();
+    let mut lastopt: Option<Operators> = None;
     // let mut lastint: f64    = 0;
     for map in &ast {
         if map["type"] == _INT.to_string() {
             // check if we are already in an expression
-            if lastopt == "".to_owned() {
+            if lastopt.is_none() {
                 if val == 0.0 {
                     val = map["token"].parse::<f64>().unwrap();
                 } else {
@@ -108,26 +140,28 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
                 }
             } else {
                 // if so, calculate and add to val, then reset other values.
-                if lastopt == "+" { val = val + map["token"].parse::<f64>().unwrap(); }
-                else if lastopt == "-" { val = val - map["token"].parse::<f64>().unwrap(); }
-                else if lastopt == "*" { val = val * map["token"].parse::<f64>().unwrap(); }
-                else if lastopt == "/" { val = val / map["token"].parse::<f64>().unwrap(); }
-                else if lastopt == "%" { val = val % map["token"].parse::<f64>().unwrap(); }
-                else if lastopt == "^" { val = val.powf(map["token"].parse::<f64>().unwrap()); }
-                else if lastopt == "!" { val = factorial(val); }
-                else if lastopt == "log" { val = val.log(map["token"].parse::<f64>().unwrap()); }
-                else if lastopt == "nrt" { val = root(val, map["token"].parse::<f64>().unwrap()); }
-                else { println!("WARN: operator {} not implemented yet.", map["token"]); }
+                match lastopt.unwrap() {
+                    Operators::Add => val = val + map["token"].parse::<f64>().unwrap(),
+                    Operators::Subtract => val = val - map["token"].parse::<f64>().unwrap(),
+                    Operators::Multiply => val = val * map["token"].parse::<f64>().unwrap(),
+                    Operators::Divide => val = val / map["token"].parse::<f64>().unwrap(),
+                    Operators::Modulo => val = val % map["token"].parse::<f64>().unwrap(),
+                    Operators::Exponent => val = val.powf(map["token"].parse::<f64>().unwrap()),
+                    Operators::Factorial => val = factorial(val),
+                    Operators::Logarithm => val = val.log(map["token"].parse::<f64>().unwrap()),
+                    Operators::NRoot => val = root(val, map["token"].parse::<f64>().unwrap()),
+                    Operators::Unimplemented => eprintln!("WARN: operator {} not implemented yet.", map["token"]),
+                }
 
                 // reset values
-                lastopt = "".to_owned();
+                lastopt = None;
                 // lastint = 0;
             }
         }
         if map["type"] == _OPT.to_string() {
-            lastopt = map["token"].to_string();
+            lastopt = Some((&map["token"]).into());
         }
-        debug(format!("DEBUG: val:{} opt:{}", val, lastopt));
+        debug(format!("DEBUG: val:{} opt:{:?}", val, lastopt));
     }
     return format!("{}", val)
 }
