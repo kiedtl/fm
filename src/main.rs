@@ -13,14 +13,14 @@ const VERS: &str = "0.0.3";
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
 
-fn lex(tokens: Vec<String>) -> Vec<String> {
+fn lex(tokens: &[String]) -> Vec<String> {
     // iterate through Vector
     // and check if there are 
     // spaces in any of the tokens.
     // if so, save that token, split it,
     // and replace the original item with it.
     let mut newtokens: Vec<String> = Vec::new();
-    for token in &tokens {
+    for token in tokens {
         if token.contains(" ") {
             let split_token = token.split(" ");
             let newsplit_tokens: Vec<&str> = split_token.collect::<Vec<&str>>().to_owned();
@@ -35,7 +35,7 @@ fn lex(tokens: Vec<String>) -> Vec<String> {
     newtokens
 }
 
-fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
+fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
     // abstract syntax table
     let mut ast: Vec<HashMap<String, String>> = Vec::new();
     for token in tokens {
@@ -90,11 +90,11 @@ fn root(num: f64, mut base: f64) -> f64 {
     num.powf(base)
 }
 
-fn process(ast: Vec<HashMap<String, String>>) -> String {
+fn process(ast: &[HashMap<String, String>]) -> String {
     let mut val:     f64    = 0.0;
     let mut lastopt: Option<Operators> = None;
     // let mut lastint: f64    = 0;
-    for map in &ast {
+    for map in ast {
         if map["type"] == _INT.to_string() {
             // check if we are already in an expression
             if lastopt.is_none() {
@@ -212,6 +212,6 @@ fn main() {
     }
 
 
-    let answer = process(parse(lex(args)));
+    let answer = process(&parse(&lex(&args)));
     println!("{}", answer);
 }
