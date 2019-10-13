@@ -190,37 +190,28 @@ fn version() {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    
-    let mut nargs: Vec<String> = Vec::new();
-    for i in 1..args.len() {
-        nargs.push((&*args[i]).to_owned());
-    }
    
     // Display help if there aren't any args.
-    if nargs.len() < 1 { 
+    if args.len() < 1 { 
         help();
         std::process::exit(1);
     }
 
     // print help and exit if first arg is ?
-    if nargs[0] == "--help" ||
-        nargs[0] == "-h"    ||
-        nargs[0] == "-help" ||
-        nargs[0] == "help"  ||
-        nargs[0] == "?" {
+    // print version if first arg is -v
+    match args[0].as_ref() {
+        "--help" | "-h" | "-help" | "help" | "?" => {
             help();
             std::process::exit(1);
-    }
-
-    // print version if first arg is -v
-    if nargs[0] == "-v" ||
-        nargs[0] == "--version" ||
-        nargs[0] == "version" {
+        }
+        "--version" | "-v" | "-version" | "version" => {
             version();
             std::process::exit(1);
+        }
+        _ => {},
     }
 
 
-    let answ: String = process(parse(lex(nargs)));
-    println!("{}", answ);
+    let answer = process(parse(lex(args)));
+    println!("{}", answer);
 }
