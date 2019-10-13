@@ -132,13 +132,13 @@ fn root(num: f64, mut base: f64) -> f64 {
 }
 
 pub fn debug(text: String) {
-    if !env::var("FD_DEBUG").is_err() {
+    if env::var("FD_DEBUG").is_ok() {
         println!("{}", text);
     }
 }
 
 pub fn warn(text: String) {
-    if !env::var("FD_WARN").is_err() {
+    if env::var("FD_WARN").is_ok() {
         println!("{}", text);
     }
 }
