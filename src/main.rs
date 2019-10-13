@@ -1,6 +1,5 @@
 mod fm;
 
-use fm::{lex, parse, process};
 use std::env;
 
 const VERS: &str = "0.0.3";
@@ -73,6 +72,6 @@ fn main() {
     }
 
 
-    let answer = process(&parse(&lex(&args)));
+    let answer = fm::calculate(&args);
     println!("{}", answer);
 }

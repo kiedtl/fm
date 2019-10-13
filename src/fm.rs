@@ -1,4 +1,4 @@
-pub mod ops;
+mod ops;
 
 use ops::Operators;
 
@@ -7,10 +7,14 @@ use std::process;
 use std::collections::HashMap;
 
 // token types
-pub const INT: &str = "integer";
-pub const OPT: &str = "operator";
+const INT: &str = "integer";
+const OPT: &str = "operator";
 
-pub fn lex(tokens: &[String]) -> Vec<String> {
+pub fn calculate(args: &[String]) -> String {
+    process(&parse(&lex(&args)))
+}
+
+fn lex(tokens: &[String]) -> Vec<String> {
     // iterate through Vector
     // and check if there are 
     // spaces in any of the tokens.
@@ -32,7 +36,7 @@ pub fn lex(tokens: &[String]) -> Vec<String> {
     newtokens
 }
 
-pub fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
+fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
     // abstract syntax table
     let mut ast: Vec<HashMap<String, String>> = Vec::new();
     for token in tokens {
@@ -68,7 +72,7 @@ pub fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
     ast
 }
 
-pub fn process(ast: &[HashMap<String, String>]) -> String {
+fn process(ast: &[HashMap<String, String>]) -> String {
     let mut val:     f64    = 0.0;
     let mut lastopt: Option<Operators> = None;
     // let mut lastint: f64    = 0;
@@ -131,13 +135,13 @@ fn root(num: f64, mut base: f64) -> f64 {
     num.powf(base)
 }
 
-pub fn debug(text: String) {
+fn debug(text: String) {
     if env::var("FD_DEBUG").is_ok() {
         println!("{}", text);
     }
 }
 
-pub fn warn(text: String) {
+fn warn(text: String) {
     if env::var("FD_WARN").is_ok() {
         println!("{}", text);
     }
