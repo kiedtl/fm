@@ -49,7 +49,7 @@ fn version() {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().skip(1).collect();
    
     // Display help if there aren't any args.
     if args.len() < 1 { 
@@ -71,5 +71,5 @@ fn main() {
         _ => {},
     }
 
-    println!("{}", fm::calculate(&args[1..]));
+    println!("{}", fm::calculate(&args));
 }
