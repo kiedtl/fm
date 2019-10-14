@@ -9,6 +9,7 @@ use std::collections::HashMap;
 // token types
 const INT: &str = "integer";
 const OPT: &str = "operator";
+const SUB: &str = "subexpression";
 
 pub fn calculate(args: &[String]) -> String {
     process(&parse(&lex(&args)))
@@ -39,14 +40,40 @@ fn lex(tokens: &[String]) -> Vec<String> {
 fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
     // abstract syntax table
     let mut ast: Vec<HashMap<String, String>> = Vec::new();
-    for token in tokens {
-        let token: &str = token.as_ref();
+    let mut ctr = 0;
+    for _ in 0..tokens.len() {
+        let mut token: &str = &tokens[ctr];
         // check if token is numeric
         if token.parse::<f64>().is_ok() {
             ast.push([("type".to_owned(), 
                        INT.to_owned()), 
                      ("token".to_string(), 
                       token.to_owned())]
+                     .iter()
+                     .cloned()
+                     .collect()
+                     );
+        } else if token == SUB {
+            let expr_start = ctr;
+            let mut expr_depth = 1;
+            while token != ")" && expr_depth == 0 {
+                ctr = ctr + 1;
+                token = &tokens[ctr];
+                if token == "(" {
+                    expr_depth += 1;
+                } 
+                if token == ")" {
+                    expr_depth -= 1;
+                }
+            }
+            // send the expression slice, without 
+            // parenthesis, to calculate() then get the return value
+            // and insert it into the ast.
+            let answer = calculate(&tokens[(expr_start+1 as usize)..(ctr-1 as usize)]);
+            ast.push([("type".to_owned(),
+                      INT.to_owned()),
+                     ("token".to_string(),
+                      answer.to_owned())]
                      .iter()
                      .cloned()
                      .collect()
@@ -97,7 +124,7 @@ fn process(ast: &[HashMap<String, String>]) -> String {
                     Operators::Factorial => val = factorial(val),
                     Operators::Logarithm => val = val.log(map["token"].parse::<f64>().unwrap()),
                     Operators::NRoot => val = root(val, map["token"].parse::<f64>().unwrap()),
-                    _ => eprintln!("WARN: operator {} not implemented yet.", map["token"]),
+                    _ => eprintln!("ERROR: operator {} not implemented yet.", map["token"]),
                 }
 
                 // reset values
