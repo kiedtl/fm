@@ -70,6 +70,6 @@ fn main() {
         }
         _ => {},
     }
-    println!("{:?}", args);
+
     println!("{}", fm::calculate(&args));
 }
