@@ -71,5 +71,5 @@ fn main() {
         _ => {},
     }
 
-    println!("{}", fm::calculate(&args));
+    println!("{}", fm::calculate(&args[1..]));
 }
