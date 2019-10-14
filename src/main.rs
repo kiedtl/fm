@@ -8,7 +8,8 @@ const VERS: &str = "0.0.3";
 // token types
 const _INT: &str = "integer";
 const _OPT: &str = "operator";
-const _EXP: &str = "subexpression";
+const _EXP_OPEN: &str = "subexp_start";
+const _EXP_CLOSE: &str = "subexp_stop";
 
 // operators
 const _OPERATORS: &'static [&'static str] = &["+",      // addition 
@@ -67,15 +68,24 @@ fn parse(tokens: Vec<String>) -> Vec<HashMap<String, String>> {
                      .cloned()
                      .collect()
                      );
-        } else if token == "(" || token == ")" || token == "[" || token == "]" { // check if token equals (, ), [, or ]
+        } else if token == "(" || token == "[" { // check if token equals (, ), [, or ]
             ast.push([("type".to_owned(),
-                       _EXP.to_owned()),
+                       _EXP_OPEN.to_owned()),
                       ("token".to_string(),
                       token)]
                       .iter()
                       .cloned()
                       .collect()
                       );
+        } else if token == ")" || token == "]" { // check if token equals end
+            ast.push([("type".to_owned(),
+                       _EXP_CLOSE.to_owned()),
+                       ("token".to_string(),
+                       token)]
+                       .iter()
+                       .cloned()
+                       .collect()
+                       );
         } else {
             println!("ERROR: token {} not recognized as OPT or INT! aborting.", token);
             process::exit(1);
@@ -103,11 +113,13 @@ fn root(num: f64, mut base: f64) -> f64 {
     return num.powf(base);
 }
 
-fn process(ast: Vec<HashMap<String, String>>) -> String {
+fn process(mut ast: Vec<HashMap<String, String>>) -> String {
     let mut val:     f64    = 0.0;
     let mut lastopt: String = "".to_owned();
     // let mut lastint: f64    = 0;
-    for map in &ast {
+    let mut ctr = 0;
+    for _ in 0..ast.len() {
+        let mut map = &ast[ctr];
         if map["type"] == _INT.to_string() {
             // check if we are already in an expression
             if lastopt == "".to_owned() {
@@ -137,7 +149,39 @@ fn process(ast: Vec<HashMap<String, String>>) -> String {
         if map["type"] == _OPT.to_string() {
             lastopt = map["token"].to_string();
         }
+        if map["type"] == _EXP_OPEN  {
+            // here, we 'iron out the kinks' by 
+            // resolving the subexpression,
+            // then inserting the new value in
+            // front of the next token
+            let exp_start = ctr;
+            let mut exp_depth = 1;
+            while map["type"] != _EXP_CLOSE && exp_depth == 1  {
+                ctr = ctr + 1;
+                map = &ast[ctr];
+                if map["type"] == _EXP_OPEN {
+                    exp_depth = exp_depth + 1;
+                } 
+                if map["type"] == _EXP_CLOSE {
+                    exp_depth = exp_depth - 1;
+                }
+            }
+            // send exp slice to new process
+            let newval = process(ast[exp_start..ctr].to_vec());
+
+            // insert newval in front of next token,
+            // so that its the next token to be processed
+            ast.insert(ctr + 1, [("type".to_owned(),
+                       _INT.to_owned()),
+                       ("token".to_string(),
+                       newval)]
+                       .iter()
+                       .cloned()
+                       .collect()
+                       );
+        }
         debug(format!("DEBUG: val:{} opt:{}", val, lastopt));
+        ctr = ctr + 1;
     }
     return format!("{}", val)
 }
