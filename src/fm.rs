@@ -94,6 +94,8 @@ fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
                      .collect()
                      );
         }
+
+        ctr += 1;
     }
     debug(format!("DEBUG: AST: {:?}", ast));
     ast
