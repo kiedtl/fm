@@ -12,7 +12,7 @@ const OPT: &str = "operator";
 const SUB: &str = "subexpression";
 
 pub fn calculate(args: &[String]) -> String {
-    process(&parse(&lex(&args)))
+    process(&parse(&lex(args)))
 }
 
 fn lex(tokens: &[String]) -> Vec<String> {
@@ -81,7 +81,7 @@ fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
         } else {
             let operator: Operators = token.into();
             if operator == Operators::Unimplemented {
-                println!("ERROR: token {} not recognized as OPT or INT! aborting.", &token);
+                eprintln!("ERROR: token {} not recognized as OPT or INT! aborting.", &token);
                 process::exit(1);
             }
 
@@ -94,6 +94,8 @@ fn parse(tokens: &[String]) -> Vec<HashMap<String, String>> {
                      .collect()
                      );
         }
+
+        ctr += 1;
     }
     debug(format!("DEBUG: AST: {:?}", ast));
     ast
@@ -115,11 +117,11 @@ fn process(ast: &[HashMap<String, String>]) -> String {
             } else {
                 // if so, calculate and add to val, then reset other values.
                 match lastopt.unwrap() {
-                    Operators::Add => val = val + map["token"].parse::<f64>().unwrap(),
-                    Operators::Subtract => val = val - map["token"].parse::<f64>().unwrap(),
-                    Operators::Multiply => val = val * map["token"].parse::<f64>().unwrap(),
-                    Operators::Divide => val = val / map["token"].parse::<f64>().unwrap(),
-                    Operators::Modulo => val = val % map["token"].parse::<f64>().unwrap(),
+                    Operators::Add => val += map["token"].parse::<f64>().unwrap(),
+                    Operators::Subtract => val -=  map["token"].parse::<f64>().unwrap(),
+                    Operators::Multiply => val *=  map["token"].parse::<f64>().unwrap(),
+                    Operators::Divide => val /= map["token"].parse::<f64>().unwrap(),
+                    Operators::Modulo => val %= map["token"].parse::<f64>().unwrap(),
                     Operators::Exponent => val = val.powf(map["token"].parse::<f64>().unwrap()),
                     Operators::Factorial => val = factorial(val),
                     Operators::Logarithm => val = val.log(map["token"].parse::<f64>().unwrap()),
@@ -170,6 +172,6 @@ fn debug(text: String) {
 
 fn warn(text: String) {
     if env::var("FD_WARN").is_ok() {
-        println!("{}", text);
+        eprintln!("{}", text);
     }
 }
